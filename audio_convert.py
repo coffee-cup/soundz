@@ -1,22 +1,9 @@
-import numpy as np
-from matplotlib import pyplot as plt
-import scipy.io.wavfile as wav
-from numpy.lib import stride_tricks
-
 from pydub import AudioSegment
-import argparse
 import os.path
 import glob
 from tinytag import TinyTag
 from tqdm import tqdm
-
-parser = argparse.ArgumentParser()
-
-parser.add_argument(
-    '--db_directory',
-    type=str,
-    default='Database',
-    help='Database directory to store wav files to.')
+from config import get_config
 
 
 def ensure_directory_exists(name):
@@ -39,8 +26,9 @@ def create_database_directory(name):
 def get_song_filename(filename, db_directory, format='wav'):
     """Creates a filepath to a song based on the mp3 metadata."""
     tag = TinyTag.get(filename)
-    return '{}/{}/{}/{}.{}'.format(db_directory, tag.artist, tag.album,
-                                   tag.title, format)
+    title = tag.title.replace('/', '').replace('  ', ' ')
+    return '{}/{}/{}/{}.{}'.format(db_directory, tag.artist, tag.album, title,
+                                   format)
 
 
 def save_mp3_as_wav(filename, config, format='wav'):
@@ -65,7 +53,7 @@ def save_mp3_as_wav(filename, config, format='wav'):
 
 
 if __name__ == '__main__':
-    config, unparsed = parser.parse_known_args()
+    config, unparsed = get_config()
     if len(unparsed) <= 0:
         print('Directory to recursivley search for MP3 files is required.')
         exit(1)
