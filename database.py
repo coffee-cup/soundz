@@ -1,9 +1,10 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, Binary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from tqdm import tqdm
+import psycopg2
 
 Base = declarative_base()
 
@@ -12,9 +13,9 @@ class Song(Base):
     __tablename__ = 'song'
 
     id = Column(Integer, primary_key=True)
-    artist = Column(String)
-    album = Column(String)
-    title = Column(String)
+    artist = Column(String, nullable=False)
+    album = Column(String, nullable=False)
+    title = Column(String, nullable=False)
     track = Column(String)
     year = Column(Integer)
     samplerate = Column(Integer)
@@ -25,9 +26,9 @@ class Fingerprint(Base):
     __tablename__ = 'fingerprint'
 
     id = Column(Integer, primary_key=True)
-    hash = Column(String)
-    time = Column(Integer)
-    song_id = Column(Integer, ForeignKey('song.id'))
+    hash = Column(Binary, nullable=False)
+    time = Column(Integer, nullable=False)
+    song_id = Column(Integer, ForeignKey('song.id'), nullable=False)
     song = relationship(Song)
 
 
@@ -67,7 +68,8 @@ def save_fingerprints(song, fingerprints):
 
     inserts = []
     for p in tqdm(fingerprints):
-        new_fingerprint = Fingerprint(hash=p.hash, time=p.time, song=song)
+        new_fingerprint = Fingerprint(
+            hash=p.hash, time=p.time, song=song, song_id=song.id)
         inserts.append(new_fingerprint)
 
     session.bulk_save_objects(inserts)
