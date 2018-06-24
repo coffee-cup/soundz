@@ -150,9 +150,9 @@ def create_fingerprints(peaks, fan_value=15):
         for j in range(1, fan_value):
             if (i + j) < len(peaks):
                 f1 = peaks[i][0]
-                f2 = peaks[j][0]
+                f2 = peaks[i + j][0]
                 t1 = peaks[i][1]
-                t2 = peaks[i][1]
+                t2 = peaks[i + j][1]
                 t_delta = t2 - t1
 
                 # Hashes must be within 200s of each other
