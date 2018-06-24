@@ -5,7 +5,7 @@ import scipy.io.wavfile as wav
 from tinytag import TinyTag
 from tqdm import tqdm
 from config import get_config
-from audio import preprocess
+from audio import preprocess, generate_fingerprints
 from utils import log
 
 
@@ -59,6 +59,9 @@ def process_mp3(filename):
     print('Artist : {}'.format(song.meta.artist))
     print('Album  : {}'.format(song.meta.album))
     print('\n')
+
+    generate_fingerprints(
+        song.meta.title, song.samples, song.samplerate, plot=True)
 
 
 if __name__ == '__main__':
