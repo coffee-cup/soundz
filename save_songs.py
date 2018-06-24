@@ -58,9 +58,9 @@ def process_mp3(filename):
     print('Title  : {}'.format(song.meta.title))
     print('Artist : {}'.format(song.meta.artist))
     print('Album  : {}'.format(song.meta.album))
-    print('\n')
+    print('')
 
-    generate_fingerprints(
+    prints = generate_fingerprints(
         song.meta.title, song.samples, song.samplerate, plot=True)
 
 

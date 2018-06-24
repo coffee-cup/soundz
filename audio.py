@@ -128,6 +128,7 @@ def generate_fingerprints(title, samples, sr=44100, plot=False):
     log('Sample rate: {}'.format(sr))
     log('Length: {:.2f} sec'.format(samples.shape[0] / sr))
     log('Window size: {:.2f} ms'.format(frame_size / sr * 1000))
+    log('')
 
     log('Creating spectrogram...')
     freqs, times, spec = signal.spectrogram(
@@ -143,10 +144,14 @@ def generate_fingerprints(title, samples, sr=44100, plot=False):
     spec = 10 * np.log10(spec)
     spec[spec == -np.inf] = 0
 
-    # Find peaks in spectrogram
     log('Finding peaks...')
     freq_idx, time_idx = find_peaks(spec)
     peaks = zip(freq_idx, time_idx)
+    log('{} peaks'.format(len(freq_idx)))
+
+    log('Creating fingerprints...')
+    prints = create_fingerprints(peaks)
+    log('{} fingerprints'.format(len(prints)))
 
     if plot:
         log('Plotting...')
@@ -161,6 +166,7 @@ def create_fingerprints(peaks, fan_value=15):
     time        = t1
     """
     prints = []
+    peaks = list(peaks)
     for i in range(len(peaks)):
         for j in range(1, fan_value):
             if (i + j) < len(peaks):
@@ -174,6 +180,6 @@ def create_fingerprints(peaks, fan_value=15):
                 if t_delta >= 0 and t_delta <= 200:
                     h = '({},{},{})'.format(f1, f2, t_delta)
                     prints.append((h, t1))
+                    # print('hash: {}'.format(h))
 
-    return prints
-
+    return list(set(prints))
