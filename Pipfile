@@ -13,6 +13,7 @@ tqdm = "*"
 sqlalchemy = "*"
 "psycopg2" = "*"
 "psycopg2-binary" = "*"
+pyaudio = "*"
 
 [dev-packages]
 

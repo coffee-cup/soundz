@@ -44,6 +44,7 @@ def process_mp3(filename):
     """
     song = read_mp3(filename)
 
+    print('---------------------')
     print('Processing {}...'.format(filename))
     print('Title  : {}'.format(song.meta.title))
     print('Artist : {}'.format(song.meta.artist))

@@ -59,6 +59,12 @@ def save_song(song):
     return new_song
 
 
+def lookup_song(song_id):
+    """Lookup and return a song by id."""
+    song = session.query(Song).filter(Song.id == song_id).first()
+    return song
+
+
 def save_fingerprints(song, fingerprints):
     """
     Save list of fingerprints to the database.
@@ -74,6 +80,14 @@ def save_fingerprints(song, fingerprints):
 
     session.bulk_save_objects(inserts)
     session.commit()
+
+
+def lookup_fingerprints(fingerprints):
+    """Get all fingerprints that are in the list of fingerprints."""
+    hashes = list(map(lambda f: f.hash, fingerprints))
+    matches = session.query(Fingerprint).filter(
+        Fingerprint.hash.in_(hashes)).all()
+    return matches
 
 
 def does_song_exist(song):
