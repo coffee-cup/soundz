@@ -1,34 +1,11 @@
 import numpy as np
 from matplotlib import pyplot as plt
-import scipy.io.wavfile as wav
 from scipy import signal
 from scipy.ndimage.filters import maximum_filter
 from scipy.ndimage.morphology import (generate_binary_structure,
                                       iterate_structure, binary_erosion)
 from utils import log
-
-
-class Audio(object):
-    def __init__(self, filename, samples, samplerate, frame_size, freqs, times,
-                 spec):
-        super(Audio, self).__init__()
-
-        self.filename = filename
-        self.samples = samples
-        self.samplerate = samplerate
-        self.frame_size = frame_size
-        self.freqs = freqs
-        self.times = times
-        self.spec = spec
-        self.length = samples.shape[0] / samplerate
-
-
-class Fingerprint(object):
-    def __init__(self, h, time):
-        super(Fingerprint, self).__init__()
-
-        self.h = h
-        self.time = time
+from fingerprint import Fingerprint
 
 
 def preprocess(samples, sr):
@@ -157,6 +134,8 @@ def generate_fingerprints(title, samples, sr=44100, plot=False):
         log('Plotting...')
         create_plots(title, freqs, times, spec, time_idx, freq_idx)
 
+    return prints
+
 
 def create_fingerprints(peaks, fan_value=15):
     """
@@ -179,7 +158,7 @@ def create_fingerprints(peaks, fan_value=15):
                 # Hashes must be within 200s of each other
                 if t_delta >= 0 and t_delta <= 200:
                     h = '({},{},{})'.format(f1, f2, t_delta)
-                    prints.append((h, t1))
-                    # print('hash: {}'.format(h))
+                    p = Fingerprint(h, t1)
+                    prints.append(p)
 
     return list(set(prints))

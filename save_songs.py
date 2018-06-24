@@ -3,20 +3,10 @@ import os.path
 import glob
 import scipy.io.wavfile as wav
 from tinytag import TinyTag
-from tqdm import tqdm
 from config import get_config
 from audio import preprocess, generate_fingerprints
-from utils import log
-
-
-class Song(object):
-    def __init__(self, filename, meta, samples, sr):
-        super(Song, self).__init__()
-
-        self.filename = filename
-        self.meta = meta
-        self.samples = samples
-        self.samplerate = sr
+from song import Song
+from database import does_song_exist, save_song, save_fingerprints
 
 
 def process_mp3_directory(path, fn):
@@ -60,8 +50,14 @@ def process_mp3(filename):
     print('Album  : {}'.format(song.meta.album))
     print('')
 
-    prints = generate_fingerprints(
-        song.meta.title, song.samples, song.samplerate, plot=True)
+    if not does_song_exist(song):
+        prints = generate_fingerprints(
+            song.meta.title, song.samples, song.samplerate, plot=False)
+        db_song = save_song(song)
+        save_fingerprints(db_song, prints)
+
+    else:
+        print('Song already exists')
 
 
 if __name__ == '__main__':

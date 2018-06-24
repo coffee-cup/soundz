@@ -1,0 +1,85 @@
+from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from tqdm import tqdm
+
+Base = declarative_base()
+
+
+class Song(Base):
+    __tablename__ = 'song'
+
+    id = Column(Integer, primary_key=True)
+    artist = Column(String)
+    album = Column(String)
+    title = Column(String)
+    track = Column(String)
+    year = Column(Integer)
+    samplerate = Column(Integer)
+    duration = Column(Float)
+
+
+class Fingerprint(Base):
+    __tablename__ = 'fingerprint'
+
+    id = Column(Integer, primary_key=True)
+    hash = Column(String)
+    time = Column(Integer)
+    song_id = Column(Integer, ForeignKey('song.id'))
+    song = relationship(Song)
+
+
+url = 'postgresql://soundz:soundz@localhost:5432/soundz'
+engine = create_engine(url)
+
+Base.metadata.create_all(engine)
+Base.metadata.bind = engine
+
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
+
+
+def save_song(song):
+    """Saves a song into the database."""
+    new_song = Song(
+        artist=song.meta.artist,
+        album=song.meta.album,
+        title=song.meta.title,
+        track=song.meta.track,
+        year=song.meta.year,
+        samplerate=song.meta.samplerate,
+        duration=song.meta.duration)
+
+    session.add(new_song)
+    session.commit()
+
+    return new_song
+
+
+def save_fingerprints(song, fingerprints):
+    """
+    Save list of fingerprints to the database.
+    The fingerprints are linked to the song.
+    """
+    print('Saving fingerprints')
+
+    inserts = []
+    for p in tqdm(fingerprints):
+        new_fingerprint = Fingerprint(hash=p.hash, time=p.time, song=song)
+        inserts.append(new_fingerprint)
+
+    session.bulk_save_objects(inserts)
+    session.commit()
+
+
+def does_song_exist(song):
+    """Returns if the song is already in the database."""
+    count = session.query(Song).\
+        filter(Song.artist == song.meta.artist).\
+        filter(Song.album == song.meta.album).\
+        filter(Song.track == song.meta.track).\
+        count()
+
+    return count != 0

@@ -10,6 +10,9 @@ scipy = "*"
 pydub = "*"
 tinytag = "*"
 tqdm = "*"
+sqlalchemy = "*"
+"psycopg2" = "*"
+"psycopg2-binary" = "*"
 
 [dev-packages]
 
