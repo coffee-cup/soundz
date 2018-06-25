@@ -9,12 +9,14 @@ from song import Song
 from database import does_song_exist, save_song, save_fingerprints
 
 
-def process_mp3_directory(path, fn):
-    for filename in glob.iglob('{}/**/*.mp3'.format(path), recursive=True):
-        fn(filename)
+def process_audio_directory(path, fn):
+    for ext in ['mp4', 'mp3']:
+        for filename in glob.iglob(
+                '{}/**/*.{}'.format(path, ext), recursive=True):
+            fn(filename)
 
 
-def read_mp3(filename):
+def read_audio_file(filename):
     """Read MP3 file into a Song object."""
     if not os.path.isfile(filename):
         print('{} does not exists'.format(filename))
@@ -24,7 +26,8 @@ def read_mp3(filename):
     meta = TinyTag.get(filename)
 
     # Read mp3 and save as tempoary wavfile
-    song = AudioSegment.from_mp3(filename)
+    ext = os.path.splitext(filename)[1].replace('.', '')
+    song = AudioSegment.from_file(filename, ext)
     tmp_path = './tmp_{}'.format(os.path.basename(filename))
     song.export(tmp_path, format='wav')
 
@@ -38,11 +41,11 @@ def read_mp3(filename):
     return s
 
 
-def process_mp3(filename):
+def process_audio(filename):
     """
     Creates a fingerprint for an mp3 file and saves it into the database.
     """
-    song = read_mp3(filename)
+    song = read_audio_file(filename)
 
     print('---------------------')
     print('Processing {}...'.format(filename))
@@ -56,7 +59,6 @@ def process_mp3(filename):
             song.meta.title, song.samples, song.samplerate, plot=False)
         db_song = save_song(song)
         save_fingerprints(db_song, prints)
-
     else:
         print('Song already exists')
 
@@ -74,7 +76,7 @@ if __name__ == '__main__':
 
     if os.path.isfile(path):
         # Process single file
-        process_mp3(path)
+        process_audio(path)
     else:
         # Process directory of MP3s
-        process_mp3_directory(path, lambda f: process_mp3(f))
+        process_audio_directory(path, lambda f: process_audio(f))
