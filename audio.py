@@ -28,7 +28,7 @@ def preprocess(samples, sr):
 def find_peaks(spec):
     """Finds peaks of audio object spectrogram."""
 
-    peak_neighbourhood_size = 20
+    peak_neighbourhood_size = 15
     min_amp = 10
 
     struct = generate_binary_structure(2, 1)
@@ -96,7 +96,7 @@ def generate_fingerprints(title, samples, sr=44100, plot=False):
 
     Returns: List of fingerprint objects
     """
-    frame_size = 4096
+    frame_size = 1024
     window = 'hamming'
     overlap = np.floor(0.5 * frame_size)
     nfft = frame_size
@@ -157,7 +157,7 @@ def create_fingerprints(peaks, fan_value=15):
 
                 # Hashes must be within 200s of each other
                 if t_delta >= 0 and t_delta <= 200:
-                    h = '({},{},{})'.format(f1, f2, t_delta)
+                    h = '{},{},{}'.format(f1, f2, t_delta)
                     p = Fingerprint(h, t1)
                     prints.append(p)
 

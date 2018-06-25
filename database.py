@@ -4,7 +4,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from tqdm import tqdm
-import psycopg2
 
 Base = declarative_base()
 
@@ -16,7 +15,7 @@ class Song(Base):
     artist = Column(String, nullable=False)
     album = Column(String, nullable=False)
     title = Column(String, nullable=False)
-    track = Column(String)
+    track = Column(Integer, nullable=False)
     year = Column(Integer)
     samplerate = Column(Integer)
     duration = Column(Float)
@@ -26,9 +25,9 @@ class Fingerprint(Base):
     __tablename__ = 'fingerprint'
 
     id = Column(Integer, primary_key=True)
-    hash = Column(Binary, nullable=False)
+    hash = Column(Binary(length=16), nullable=False)
     time = Column(Integer, nullable=False)
-    song_id = Column(Integer, ForeignKey('song.id'), nullable=False)
+    song_id = Column(Integer, ForeignKey('song.id', ondelete='CASCADE'), nullable=False)
     song = relationship(Song)
 
 
