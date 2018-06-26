@@ -3,10 +3,13 @@ import numpy as np
 from audio import preprocess, generate_fingerprints
 from database import lookup_fingerprints, lookup_song
 
+LOOKUP_TIME = 10  # seconds
+
 CHUNK = 4096
 FORMAT = pyaudio.paInt16
-CHANNELS = 2
+CHANNELS = 1
 RATE = 44100
+DEVICE_INDEX = 0
 
 
 def align_matches(matches):
@@ -49,7 +52,7 @@ def find_matches(samples, sr=RATE):
 
     samples = preprocess(samples, sr)
     fingerprints = generate_fingerprints(
-        'Microphone', samples, sr=sr, plot=True)
+        'Microphone', samples, sr=sr, plot=False)
 
     print('Looking up matches in database...')
     matches = lookup_fingerprints(fingerprints)
@@ -70,7 +73,7 @@ def find_matches(samples, sr=RATE):
 
 
 def find_microphone_matches():
-    data = record_audio(seconds=10)
+    data = record_audio(seconds=LOOKUP_TIME)
     matches = find_matches(data)
 
     if matches is None:
@@ -78,7 +81,7 @@ def find_microphone_matches():
     else:
         song = align_matches(matches)
 
-        print('----- Match')
+        print('\n------------- Match')
         print(song['title'])
         print(song['artist'])
         print(song['album'])
@@ -93,6 +96,7 @@ def record_audio(seconds=5):
         channels=CHANNELS,
         rate=RATE,
         input=True,
+        input_device_index=DEVICE_INDEX,
         frames_per_buffer=CHUNK)
     print('Recoring for {} seconds'.format(seconds))
 
